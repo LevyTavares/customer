@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # API Customer
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
@@ -44,3 +45,11 @@ def run():
 
 if __name__ == "__main__":
     run()
+=======
+#API Customer
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import json
+
+# Create array of customers
+customers = []
+>>>>>>> 198334c7aa5dbc1c721fdf046e75e358911e64ed
