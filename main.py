@@ -1,1 +1,0 @@
-ArithmeticError is raised if the argument is not an integer value 
