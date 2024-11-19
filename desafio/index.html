@@ -3,25 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Criando uma demonstração visual">
-    <meta name="author" content="Isaías Levi">
-    <link rel="stylesheet" href="css/style.css">
-    <title>Fila de Espera</title>
+    <title>Gerenciador de Filas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 10px 5px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            max-width: 500px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fila de Espera</h1>
-        <p>Por favor, insira seu nome para entrar na fila de espera.</p>
-        <form id="queueForm">
-            <input type="text" id="nameInput" placeholder="Nome" required>
-            <button type="submit">Entrar na fila</button>
-        </form>
-        <div id="queueList">
-            <h2>Pessoas na fila:</h2>
-            <ul id="queueItems"></ul>
-        </div>
+    <h1>Gerenciador de Filas</h1>
+    <button onclick="gerarSenha()">Gerar Senha</button>
+    <button onclick="chamarSenha()">Chamar Senha</button>
+    <button onclick="listarSenhas()">Listar Senhas</button>
+
+    <div class="output" id="output">
+        <h3>Resultado:</h3>
+        <p id="resultado">Nenhuma ação realizada ainda.</p>
     </div>
 
-    <script src="js/"></script>
+    <script>
+        const apiBaseUrl = "http://localhost:8080"; // Base URL da API
+
+        async function gerarSenha() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/gerar-senha`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                const data = await response.json();
+                document.getElementById("resultado").innerText = `Senha gerada: ${data.senha}`;
+            } catch (error) {
+                document.getElementById("resultado").innerText = "Erro ao gerar senha.";
+                console.error(error);
+            }
+        }
+
+        async function chamarSenha() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/chamar-senha`);
+                if (response.status === 200) {
+                    const data = await response.json();
+                    document.getElementById("resultado").innerText = `Senha chamada: ${data.senha}`;
+                } else if (response.status === 204) {
+                    document.getElementById("resultado").innerText = "Nenhuma senha na fila.";
+                }
+            } catch (error) {
+                document.getElementById("resultado").innerText = "Erro ao chamar senha.";
+                console.error(error);
+            }
+        }
+
+        async function listarSenhas() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/listar-senhas`);
+                const data = await response.json();
+                document.getElementById("resultado").innerText = 
+                    data.senhas.length > 0 
+                        ? `Senhas na fila: ${data.senhas.join(", ")}`
+                        : "Nenhuma senha na fila.";
+            } catch (error) {
+                document.getElementById("resultado").innerText = "Erro ao listar senhas.";
+                console.error(error);
+            }
+        }
+    </script>
 </body>
 </html>
