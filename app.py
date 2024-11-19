@@ -20,6 +20,7 @@ class FilaAtendimento:
     # Listar todas as senhas (alunos vão fazer isso)
     def listar_senhas(self):
         return self.fila
+
 class RequisicaoHandler(BaseHTTPRequestHandler):
     fila_atendimento = FilaAtendimento()
     
