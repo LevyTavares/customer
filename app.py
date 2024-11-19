@@ -12,21 +12,23 @@ class FilaAtendimento:
         self.fila.append(senha)
         self.proximo_numero += 1
         return senha
-    
+
     def atender_cliente(self):
         if self.fila:
             return self.fila.pop(0)
         return None
-    # Listar todas as senhas (alunos vão fazer isso)
-    
+
+    def listar_senhas(self):
+        return self.fila  # Retorna a lista de senhas ainda na fila
+
 class RequisicaoHandler(BaseHTTPRequestHandler):
     fila_atendimento = FilaAtendimento()
-    
+
     def _set_headers(self, status=200):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-    
+
     def do_POST(self):
         if self.path == "/gerar-senha":
             senha = self.fila_atendimento.gerar_senha()
@@ -35,7 +37,7 @@ class RequisicaoHandler(BaseHTTPRequestHandler):
         else:
             self._set_headers(404)
             self.wfile.write(json.dumps({"message": "Rota não encontrada."}).encode())
- 
+
     def do_GET(self):
         if self.path == "/chamar-senha":
             senha = self.fila_atendimento.atender_cliente()
@@ -44,6 +46,11 @@ class RequisicaoHandler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"senha": senha}).encode())
             else:
                 self._set_headers(204)
+                self.wfile.write(json.dumps({"message": "Nenhuma senha na fila."}).encode())
+        elif self.path == "/listar-senhas":
+            senhas = self.fila_atendimento.listar_senhas()
+            self._set_headers(200)
+            self.wfile.write(json.dumps({"senhas": senhas}).encode())
         else:
             self._set_headers(404)
             self.wfile.write(json.dumps({"message": "Rota não encontrada."}).encode())
