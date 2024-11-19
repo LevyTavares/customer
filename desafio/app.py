@@ -1,7 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
-# Classe para gerenciar Filas de atendimento
 class FilaAtendimento:
     def __init__(self):
         self.fila = []
@@ -19,7 +18,7 @@ class FilaAtendimento:
         return None
 
     def listar_senhas(self):
-        return self.fila  # Retorna a lista de senhas ainda na fila
+        return self.fila
 
 class RequisicaoHandler(BaseHTTPRequestHandler):
     fila_atendimento = FilaAtendimento()
@@ -27,7 +26,14 @@ class RequisicaoHandler(BaseHTTPRequestHandler):
     def _set_headers(self, status=200):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
+        self.send_header('Access-Control-Allow-Origin', '*')  # Permitir CORS
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')  # Métodos permitidos
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')  # Cabeçalhos permitidos
         self.end_headers()
+
+    def do_OPTIONS(self):
+        """Lida com requisições OPTIONS (preflight)."""
+        self._set_headers(204)  # Sem conteúdo, apenas configurações de CORS
 
     def do_POST(self):
         if self.path == "/gerar-senha":
@@ -63,4 +69,3 @@ def run():
 
 if __name__ == "__main__":
     run()
-
