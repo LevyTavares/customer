@@ -1,0 +1,149 @@
+### Documentação dos Códigos: API e Página HTML
+
+#### **1. Código Python: Servidor HTTP para Gerenciamento de Filas**
+
+Este código implementa uma API básica usando a biblioteca `http.server` do Python para gerenciar filas de atendimento. Ele simula um sistema onde senhas podem ser geradas, chamadas e listadas.
+
+---
+
+#### **Funcionamento Geral**
+
+O servidor responde a requisições HTTP nas seguintes rotas:
+
+| **Método** | **Rota**            | **Descrição**                                        |
+|------------|---------------------|----------------------------------------------------|
+| `POST`     | `/gerar-senha`      | Gera uma nova senha e a adiciona à fila.          |
+| `GET`      | `/chamar-senha`     | Remove e retorna a próxima senha da fila.         |
+| `GET`      | `/listar-senhas`    | Retorna todas as senhas que ainda estão na fila.  |
+| `OPTIONS`  | Todas as rotas      | Responde a requisições de preflight (CORS).       |
+
+---
+
+#### **Componentes Principais**
+
+1. **Classe `FilaAtendimento`**
+   - Gerencia a fila de atendimento e os números das senhas.
+   - **Atributos:**
+     - `fila`: Lista que armazena as senhas.
+     - `proximo_numero`: Número inteiro usado para gerar a próxima senha.
+   - **Métodos:**
+     - `gerar_senha()`: Gera uma nova senha, adiciona à fila e incrementa o número.
+     - `atender_cliente()`: Remove e retorna a próxima senha da fila. Retorna `None` se a fila estiver vazia.
+     - `listar_senhas()`: Retorna a lista de senhas ainda na fila.
+
+2. **Classe `RequisicaoHandler`**
+   - Responsável por tratar requisições HTTP. Extende `BaseHTTPRequestHandler`.
+   - **Métodos:**
+     - `_set_headers(status)`: Configura os cabeçalhos da resposta, incluindo permissões para CORS.
+     - `do_POST()`: Lida com requisições `POST`. Atualmente, suporta `/gerar-senha`.
+     - `do_GET()`: Lida com requisições `GET`. Atualmente, suporta `/chamar-senha` e `/listar-senhas`.
+     - `do_OPTIONS()`: Lida com requisições `OPTIONS` (necessário para suporte a CORS).
+
+3. **Função `run()`**
+   - Configura o servidor na porta `8080` e inicia o loop de serviço.
+
+---
+
+#### **Fluxo de Execução**
+
+1. O servidor é iniciado com `run()`, exibindo no console:  
+   ```
+   API rodando em http://localhost:8080
+   ```
+
+2. O cliente (HTML, Thunder Client ou outros) faz requisições para a API.
+
+3. A API processa a requisição e responde:
+   - Para `/gerar-senha`:
+     - Adiciona uma nova senha à fila e retorna o número gerado.
+   - Para `/chamar-senha`:
+     - Retorna e remove a próxima senha da fila. Retorna status `204` se a fila estiver vazia.
+   - Para `/listar-senhas`:
+     - Retorna todas as senhas na fila.
+
+---
+
+#### **2. Página HTML: Interface de Cliente**
+
+O HTML implementa uma interface gráfica que se comunica com a API para gerenciar a fila de senhas.
+
+---
+
+#### **Funcionamento Geral**
+
+A página utiliza **JavaScript** para fazer requisições HTTP para as rotas da API. A interação é feita por meio de botões que executam funções específicas.
+
+---
+
+#### **Estrutura**
+
+1. **HTML:**
+   - Botões:
+     - **Gerar Senha:** Faz uma requisição `POST` para `/gerar-senha`.
+     - **Chamar Senha:** Faz uma requisição `GET` para `/chamar-senha`.
+     - **Listar Senhas:** Faz uma requisição `GET` para `/listar-senhas`.
+   - Div de resultado:
+     - Exibe as respostas da API, como a senha gerada ou lista de senhas.
+
+2. **CSS:**
+   - Adiciona um design simples, com botões estilizados e uma área para exibir os resultados.
+
+3. **JavaScript:**
+   - Cada botão chama uma função:
+     - **`gerarSenha()`**:  
+       Faz uma requisição `POST` para a API, recebendo a senha gerada.
+     - **`chamarSenha()`**:  
+       Faz uma requisição `GET` para chamar a próxima senha. Exibe mensagens caso a fila esteja vazia.
+     - **`listarSenhas()`**:  
+       Faz uma requisição `GET` para listar todas as senhas na fila.
+   - Utiliza o método `fetch` para enviar e receber dados da API.
+
+---
+
+#### **Fluxo de Execução**
+
+1. O usuário abre a página em um navegador (hospedada localmente, por exemplo, com Live Server).
+2. Ao clicar em um botão:
+   - É feita uma requisição para a API.
+   - A resposta é exibida na área de resultados.
+
+---
+
+#### **Exemplo Prático**
+
+1. **Usuário clica em "Gerar Senha".**
+   - A função `gerarSenha()` é chamada:
+     - Requisição `POST` → `/gerar-senha`.
+     - Resposta: `{ "senha": 1 }`.
+   - Resultado exibido: `Senha gerada: 1`.
+
+2. **Usuário clica em "Listar Senhas".**
+   - A função `listarSenhas()` é chamada:
+     - Requisição `GET` → `/listar-senhas`.
+     - Resposta: `{ "senhas": [1] }`.
+   - Resultado exibido: `Senhas na fila: 1`.
+
+3. **Usuário clica em "Chamar Senha".**
+   - A função `chamarSenha()` é chamada:
+     - Requisição `GET` → `/chamar-senha`.
+     - Resposta: `{ "senha": 1 }`.
+   - Resultado exibido: `Senha chamada: 1`.
+
+---
+
+#### **Cenários de Erro**
+
+1. **Fila vazia:**
+   - Ao chamar senha quando não há senhas na fila, a API retorna status `204`.  
+   Resultado exibido: `Nenhuma senha na fila.`
+
+2. **Rota inexistente:**
+   - Se a requisição for feita para uma rota não definida, a API retorna status `404`.  
+   Resultado exibido: `Rota não encontrada.`
+
+---
+
+#### **Finalidade dos Códigos**
+
+- **Servidor Python:** Prover um backend simples para gerenciar filas de atendimento.
+- **Página HTML:** Facilitar a interação com o sistema por meio de uma interface amigável.
